@@ -13,6 +13,7 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -33,20 +34,20 @@ public class JohnHopkinsStrategy implements IndianDiseaseStat {
 
 	@Override
 	public String GetActiveCount() {
-		
-		
-		//try block
-			//get response from the getJohnHopkinResponses method
-			//filter the data based such that country equals India (use getCountry() to get the country value)
-			//Map the data to "confirmed" value (use getStats() and getConfirmed() to get stats value and confirmed value)
-			//Reduce the data to get a sum of all the "confirmed" values
-			//return the response after rounding it up to 0 decimal places
-		//catch block
-			//log the error
-			//return null
-
-	
-
+		try {
+			List<Float> confirmedCountsForIndia = Arrays.stream(getJohnHopkinResponses())
+					.filter(response -> response.getCountry().equals("India"))
+					.map(response -> response.getStats().getConfirmed())
+					.collect(Collectors.toList());
+			float totalCount = 0;
+			for (float count : confirmedCountsForIndia) {
+				totalCount += count;
+			}
+			return new DecimalFormat("#").format(totalCount);
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+			return null;
+		}
 	}
 
 	private JohnHopkinResponse[] getJohnHopkinResponses() {
